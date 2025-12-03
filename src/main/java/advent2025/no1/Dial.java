@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.Objects;
 
 public class Dial {
+    public static final int DIAL_RANGE = 100;
+    public static final String LEFT_SYMBOL = "L";
     private int timesTo0 = 0;
     private int currentValue;
 
@@ -24,19 +26,29 @@ public class Dial {
 
     public int rotate(String vector) {
         var direction = vector.substring(0, 1);
-        var strength = Integer.parseInt(vector.substring(1)) % 100;
+        var rawStrength = Integer.parseInt(vector.substring(1));
+        var strength = rawStrength % DIAL_RANGE;
+        var nbOfFullCircle = Math.abs(rawStrength / DIAL_RANGE);
 
-        var newValue = "L".equals(direction) ? currentValue - strength : currentValue + strength;
+        var newValue = LEFT_SYMBOL.equals(direction) ? currentValue - strength : currentValue + strength;
 
         if (newValue < 0) {
-            newValue = 100 + newValue;
-        } else if (newValue >= 100) {
-            newValue -= 100;
-        }
+            newValue = DIAL_RANGE + newValue;
 
-        if (newValue == 0) {
+            if (currentValue > 0) {
+                ++timesTo0;
+            }
+        } else if (newValue >= DIAL_RANGE) {
+            newValue -= DIAL_RANGE;
+
+            if (currentValue > 0) {
+                ++timesTo0;
+            }
+        } else if (newValue == 0) {
             ++timesTo0;
         }
+
+        timesTo0 += nbOfFullCircle;
 
         currentValue = newValue;
 

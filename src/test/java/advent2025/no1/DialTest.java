@@ -52,6 +52,24 @@ public class DialTest {
 
         dial.rotate(rotations);
 
-        assertThat(dial.timesTo0()).isEqualTo(3);
+        assertThat(dial.timesTo0()).isEqualTo(6);
+    }
+
+    @Test
+    public void ShouldCountNumberOfTimesReturningTo0ForEachFullCircle_WithLeft() {
+        var dial = new Dial(50);
+
+        dial.rotate("L1000");
+
+        assertThat(dial.timesTo0()).isEqualTo(10);
+    }
+
+    @Test
+    public void ShouldCountNumberOfTimesReturningTo0ForEachFullCircle_WithRight() {
+        var dial = new Dial(50);
+
+        dial.rotate("R1049");
+
+        assertThat(dial.timesTo0()).isEqualTo(10);
     }
 }
