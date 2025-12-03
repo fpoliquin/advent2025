@@ -16,9 +16,13 @@ public class ProductIdValidatorTest {
     @CsvSource({
             "1, true",
             "2345, true",
+            "111, false",
             "55, false",
             "6464, false",
-            "123123, false"
+            "123123, false",
+            "565656, false",
+            "123123123, false",
+            "1188511885, false"
     })
     public void ShouldNotAcceptSequencesOfDigitsRepeatedTwice(long number, boolean accepted) {
         var validator = new ProductIdValidator();
@@ -74,7 +78,8 @@ public class ProductIdValidatorTest {
 
         var res = validator.findInvalidNumbers(PROVIDED_EXAMPLE);
 
-        assertThat(res).isEqualTo(List.of(11L, 22L, 99L, 1010L, 1188511885L, 222222L, 446446L, 38593859L));
+        assertThat(res).isEqualTo(List.of(11L, 22L, 99L, 111L, 999L, 1010L, 1188511885L, 222222L, 446446L,
+                38593859L, 565656L, 824824824L, 2121212121L));
     }
 
     @Test
@@ -83,7 +88,7 @@ public class ProductIdValidatorTest {
 
         var res = validator.findInvalidNumbersSum(PROVIDED_EXAMPLE);
 
-        assertThat(res).isEqualTo(1227775554L);
+        assertThat(res).isEqualTo(4174379265L);
     }
 
 }

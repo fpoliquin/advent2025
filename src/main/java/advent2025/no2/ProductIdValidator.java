@@ -12,21 +12,41 @@ import java.util.Objects;
 
 public class ProductIdValidator {
     public boolean isValid(long number) {
-        return !hasSequenceOfDigitsRepeatedTwice(number);
+        return !hasSequenceOfDigitsRepeatedAtLeastTwice(number);
     }
 
-    private boolean hasSequenceOfDigitsRepeatedTwice(long number) {
+    private boolean hasSequenceOfDigitsRepeatedAtLeastTwice(long number) {
         var chars = Long.toString(number);
+        var charCount = chars.length();
+        var longestPossiblePattern = charCount / 2;
 
-        if (chars.length() % 2 == 1) {
+        for (var lengthOfPattern=1; lengthOfPattern <= longestPossiblePattern; ++lengthOfPattern) {
+            if (hasRepeatingPattern(chars, chars.substring(0, lengthOfPattern))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean hasRepeatingPattern(String chars, String pattern) {
+        int lengthOfPattern = pattern.length();
+
+        if (chars.length() % lengthOfPattern != 0) {
             return false;
         }
 
-        var middle = chars.length() / 2;
-        var part1 = chars.substring(0, middle);
-        var part2 = chars.substring(middle);
+        var repetitionCount = chars.length() / lengthOfPattern;
 
-        return part1.equals(part2);
+        for (int i=0; i < repetitionCount; ++i) {
+            var nextChars = chars.substring(i*lengthOfPattern, i*lengthOfPattern + lengthOfPattern);
+
+            if (!nextChars.equals(pattern)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public List<Long> findInvalidNumbers(String multiRange) {
