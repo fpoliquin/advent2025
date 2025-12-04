@@ -15,19 +15,25 @@ public class Bank {
         this.digits = string;
     }
 
-    public int findLargestPossibleJoltage() {
+    public long findLargestPossibleJoltage() {
         var lines = digits.split("\r?\n");
 
         return Arrays.stream(lines)
                 .map(this::findLargestPossibleJoltageInLine)
-                .reduce(0, Integer::sum);
+                .reduce(0L, Long::sum);
     }
 
-    private int findLargestPossibleJoltageInLine(String line) {
-        var firstNumberIndex = findLargestDigit(line, 0, line.length()-1);
-        var secondNumberIndex = findLargestDigit(line, firstNumberIndex+1, line.length());
+    private long findLargestPossibleJoltageInLine(String line) {
+        var builder = new StringBuilder();
+        var nextIndex = 0;
 
-        return Integer.parseInt("" + line.charAt(firstNumberIndex) + line.charAt(secondNumberIndex));
+        for (int i=0; i < 12; ++i) {
+            var biggestDigitIndex = findLargestDigit(line, nextIndex, line.length()-(11-i));
+            nextIndex = biggestDigitIndex + 1;
+            builder.append(line.charAt(biggestDigitIndex));
+        }
+
+        return Long.parseLong(builder.toString());
     }
 
     private int findLargestDigit(String line, int startIndex, int endIndex) {
