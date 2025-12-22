@@ -1,50 +1,119 @@
 package advent2025.no7;
 
-import advent2025.no1.Dial;
-
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 public class TachyonManifold {
-    private final char[][] manifold;
-    private final HashSet<Object> activeSplitters = new HashSet<>();
+    private final Cell[][] manifold;
 
     public TachyonManifold(String manifold) {
         this.manifold = manifold.lines()
-                .map(String::toCharArray)
-                .toArray(char[][]::new);
+                .map(line -> line.chars().boxed().map(c -> new Cell((char)(int)c)).toArray(Cell[]::new))
+                .toArray(Cell[][]::new);
     }
 
     public int countNumberOfSplits() {
-        activeSplitters.clear();
+        walkManifold();
 
-        for (int i=0; i < manifold.length-1; ++i) {
-            var line = manifold[i];
-
-            for (int j=0; j < line.length; ++j) {
-                if (line[j] == '^' || line[j] == '>') {
-                    addRay(i+1, j-1);
-                    addRay(i+1, j+1);
-                }
-                if (line[j] == 'S' || line[j] == '|') {
-                    addRay(i+1, j);
+        int activeSpliters = 0;
+        for (Cell[] cells : manifold) {
+            for (Cell cell : cells) {
+                if (cell.isActiveSplitter()) {
+                    ++activeSpliters;
                 }
             }
         }
 
-        return activeSplitters.size();
+        return activeSpliters;
     }
 
-    private void addRay(int i, int j) {
-        if (manifold[i][j] == '^') {
-            manifold[i][j] = '>';
-            activeSplitters.add(i + "-" + j);
-        } else {
-            manifold[i][j] = '|';
+    public long countNumberOfTimelines() {
+        walkManifold();
+
+        long timelines = 0;
+        var lastLine = manifold[manifold.length-1];
+        for (Cell cell : lastLine) {
+            timelines += cell.count;
         }
+
+        return timelines;
+    }
+
+    private void walkManifold() {
+        resetManifold();
+
+        for (int i=0; i < manifold.length-1; ++i) {
+            var currentLine = manifold[i];
+            var nextLine = manifold[i+1];
+
+            for (int j=0; j < currentLine.length; ++j) {
+                if (currentLine[j].isActiveSplitter()) {
+                    nextLine[j-1].incrementCount(currentLine[j].count);
+                    nextLine[j+1].incrementCount(currentLine[j].count);
+                } else if (currentLine[j].isActive()) {
+                    nextLine[j].incrementCount(currentLine[j].count);
+                }
+            }
+        }
+    }
+
+    public String toString() {
+        var buffer = new StringBuilder();
+
+        for (var line : manifold) {
+            for (var cell : line) {
+                buffer.append(cell.count);
+                buffer.append(' ');
+            }
+            buffer.append('\n');
+        }
+
+        return buffer.toString();
+    }
+
+    private void resetManifold() {
+        for (Cell[] cells : manifold) {
+            for (Cell cell : cells) {
+                cell.reset();
+            }
+        }
+    }
+
+    private static class Cell {
+
+        private final char c;
+        private long count;
+        Cell(char c) {
+            this.c = c;
+            this.count = c == 'S' ? 1 : 0;
+        }
+
+        boolean isSplitter() {
+            return c == '^';
+        }
+
+        boolean isActiveSplitter() {
+            return isActive() && isSplitter();
+        }
+
+        boolean isStart() {
+            return c == 'S';
+        }
+
+        boolean isActive() {
+            return count > 0;
+        }
+
+        void incrementCount(long inc) {
+            count += inc <= 0 ? 1 : inc;
+        }
+
+        public void reset() {
+            count = isStart() ? 1 : 0;
+        }
+
     }
 
     public static void main(String... args) throws Exception {
@@ -54,9 +123,11 @@ public class TachyonManifold {
 
         var manifold = new TachyonManifold(data);
 
-        var res = manifold.countNumberOfSplits();
+        var splitCount = manifold.countNumberOfSplits();
+        var timelines = manifold.countNumberOfTimelines();
 
-        System.out.println(res + " active splitters");
+        System.out.println(splitCount + " active splitters");
+        System.out.println(timelines + " timelines");
 
     }
 }
