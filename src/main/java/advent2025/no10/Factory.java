@@ -21,6 +21,10 @@ public class Factory {
         return machines.stream().map(Machine::findFewestTotalPresses).reduce(0, Integer::sum);
     }
 
+    public int findTotalFewestPressesForJoltage() {
+        return machines.stream().map(Machine::findFewestTotalPressesForJoltage).reduce(0, Integer::sum);
+    }
+
     public static void main(String... args) throws Exception {
 
         var data = Files.readString(
@@ -31,5 +35,9 @@ public class Factory {
         var res = factory.findTotalFewestPresses();
 
         System.out.println("Res: " + res);
+
+        var res2 = factory.findTotalFewestPressesForJoltage();
+
+        System.out.println("Res joltage: " + res2);
     }
 }

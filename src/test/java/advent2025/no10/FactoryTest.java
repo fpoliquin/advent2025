@@ -28,5 +28,14 @@ public class FactoryTest {
         assertThat(res).isEqualTo(7);
     }
 
+    @Test
+    public void ShouldFindTotalFewestPressesForJoltage() {
+        var factory = new Factory(SAMPLE);
+
+        var res = factory.findTotalFewestPressesForJoltage();
+
+        assertThat(res).isEqualTo(33);
+    }
+
 
 }
