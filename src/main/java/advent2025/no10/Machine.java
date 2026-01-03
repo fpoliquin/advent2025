@@ -1,6 +1,7 @@
 package advent2025.no10;
 
-import java.time.Duration;
+import advent2025.no10.Algebra.*;
+
 import java.util.*;
 
 public class Machine {
@@ -85,78 +86,20 @@ public class Machine {
     }
 
     public int findFewestTotalPressesForJoltage() {
-        var currentState = joltage.reset();
+        var equations = new ArrayList<Equation>();
 
-        var now = System.currentTimeMillis();
-        var res = findFewestTotalPressesForJoltage(buttons, 0, currentState, joltage);
-        var duration = Duration.ofMillis(System.currentTimeMillis() - now);
-        System.out.println(duration.toMinutes() + ":" + duration.toSecondsPart());
-        return res;
-    }
-
-    private static int findFewestTotalPressesForJoltage(List<ButtonWiring> allButtons, final int pressCount, Joltage currentState, Joltage goalState) {
-
-        {
-            var buttonCount = 0;
-            var myState = currentState;
-            var singlePressState = goalState.reset();
-
-            for (var button : allButtons) {
-                singlePressState = button.press(singlePressState);
-            }
-
-            if (singlePressState.hasOneValueToOne()) {
-                int index = singlePressState.getFirstIndexToOne();
-                var uniqueButton = allButtons.stream().filter(b -> b.pressesIndex(index)).findAny().orElseThrow();
-                int existingValue = myState.value(index);
-                int goalValue = goalState.value(index);
-                buttonCount = goalValue - existingValue;
-
-                for (int i = 0; i < buttonCount; ++i) {
-                    myState = uniqueButton.press(myState);
-                }
-
-                var remainingButtons = new ArrayList<>(allButtons);
-                remainingButtons.remove(uniqueButton);
-                try {
-                    return findFewestTotalPressesForJoltage(remainingButtons, pressCount + buttonCount, myState, goalState);
-                } catch (NoSuchElementException ignored) {
+        for (int i=0; i < joltage.size(); ++i) {
+            var terms = new ArrayList<Term>();
+            for (int j=0; j < buttons.size(); ++j) {
+                if (buttons.get(j).pressesIndex(i)) {
+                    terms.add(new Term(1, "b" + j));
                 }
             }
+
+            equations.add(new Equation(new Expression(terms),
+                    new Expression(List.of(new Term(joltage.value(i), null)))));
         }
 
-        var buttonCount = 0;
-
-        var maxButton = allButtons.stream().max(Comparator.comparingInt(ButtonWiring::sum)).orElseThrow();
-
-        var nextState = maxButton.press(currentState);
-        while(!nextState.isAbove(goalState)) {
-            ++buttonCount;
-            currentState = nextState;
-            nextState = maxButton.press(currentState);
-        }
-
-        if (currentState.equals(goalState)) {
-            System.out.println(currentState);
-            System.out.println(goalState);
-            System.out.println(buttonCount + " x " + maxButton);
-            return pressCount + buttonCount;
-        }
-
-        var availableButtons = new ArrayList<>(allButtons);
-        availableButtons.remove(maxButton);
-
-        while (buttonCount >= 0) {
-            try {
-                var res = findFewestTotalPressesForJoltage(availableButtons, pressCount+buttonCount, currentState, goalState);
-                System.out.println(buttonCount + " x " + maxButton);
-                return res;
-            } catch (NoSuchElementException ignored) {
-                currentState = maxButton.unpress(currentState);
-                --buttonCount;
-            }
-        }
-
-        throw new NoSuchElementException();
+        return new Problem(equations).solve().stream().map(Result::value).reduce(0, Integer::sum);
     }
 }

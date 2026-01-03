@@ -21,6 +21,15 @@ public class ButtonWiring {
         sum = lightIndexes.stream().reduce(0, Integer::sum);
     }
 
+    public double[] toArray(int size) {
+        var values = new double[size];
+
+        for(var index : lightIndexes) {
+            values[index] = 1D;
+        }
+
+        return values;
+    }
     public boolean includes(int lightIndex) {
         return lightIndexes.contains(lightIndex);
     }
