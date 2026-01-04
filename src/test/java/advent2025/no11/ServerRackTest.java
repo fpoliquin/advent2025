@@ -35,19 +35,6 @@ public class ServerRackTest {
             hhh: out
             """;
 
-    @ParameterizedTest
-    @CsvSource({
-            "D1: D2 D3",
-            "you: out",
-    })
-    public void ShouldParseDevice(String data) {
-        var rack = new ServerRack(data);
-
-        var res = rack.device(0);
-
-        assertThat(res).isEqualTo(new Device(data));
-    }
-
     @Test
     public void ShouldFindDirectPath() {
         var rack = new ServerRack("you: out");

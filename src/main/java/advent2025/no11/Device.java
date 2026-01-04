@@ -6,11 +6,17 @@ import java.util.List;
 public class Device {
     private final String name;
     private final List<? extends String> outputs;
-    public Integer pathCount;
+    public Long pathCount;
+    public long partialPathCount = 0;
+    public long confirmedPathCount = 0;
 
     public Device(String data) {
         name = data.substring(0, data.indexOf(':'));
         outputs = Arrays.stream(data.substring(data.indexOf(':')+1).trim().split("\\s+")).toList();
+    }
+
+    public PathData toData() {
+        return new PathData(pathCount, partialPathCount, confirmedPathCount);
     }
 
     public String name() {
